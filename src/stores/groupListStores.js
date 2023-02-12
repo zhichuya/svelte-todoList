@@ -11,15 +11,15 @@ import {v4 as uuidV4} from 'uuid';
 
 const groupList = [
     {
-        id: uuidV4(),
+        id: '69d24cbe-219d-405b-9f84-a8e6b852e2b1',
         title: '工作'
     },
     {
-        id: uuidV4(),
+        id: '30b867b6-bb05-40e8-8274-60aee4255e2d',
         title: '学习'
     },
     {
-        id: uuidV4(),
+        id: '493c5208-8a76-46b5-ba7c-c9d179236185',
         title: '娱乐'
     }
 ];

@@ -1,12 +1,21 @@
 <script>
+    
     import {v4 as uuidV4} from 'uuid';
     import addIcon from '../../assets/add.svg';
     import todoIcon from '../../assets/todo.svg';
     import EditGroup from './editGroup.svelte';
+    import todoListStore from '../../stores/todoListStores';
+
+    const {subscribe: subscribeTodoList} = todoListStore;
 
     // 组件内部的状态
     let isAddGroup = false;
     let editIdx = -1;
+    let todoList = [];
+
+    subscribeTodoList((value) => {
+        todoList = value;
+    })
 
     // 接受父组件传递的值
     export let groupList = [];
@@ -28,7 +37,6 @@
     // 编辑分组
     const handleEditGroup = function (oldGroup, newGroup) {
         editGroup(oldGroup, newGroup);
-        editIdx = -1;
     };
 
     // 展示添加分组组件
@@ -39,9 +47,20 @@
     // 添加分组 => 通知触发addGroup事件父组件添加一个分组
     const handleAddGroup = function (groupTitle) {
         const id = uuidV4();
-        addGroup({id, title: groupTitle});
+        if (groupTitle) {
+            addGroup({id, title: groupTitle});
+        }
         isAddGroup = false;
     };
+
+    // 获取groupId分组下的todo数量
+    const getTodoCountInGroup = function (groupId) {
+        let count = 0;
+        todoList.forEach((todo) => {
+            todo.groupId === groupId && count++;
+        });
+        return count;
+    }
 </script>
 
 <!-- svelte-ignore a11y-missing-attribute -->
@@ -61,17 +80,21 @@
                 >
                     <img class="group-icon" src={todoIcon} />
                     <div class="group-title">{group.title || '默认'}</div>
+                    <div class="group-todo-count">{getTodoCountInGroup(group.id)}</div>
                 </div>
             {:else}
                 <EditGroup
                     value={group.title}
                     isFocused={true}
                     change={newTitle => {
-                        const newGroup = {
-                            ...group,
-                            title: newTitle
-                        };
-                        handleEditGroup(group, newGroup);
+                        if (newTitle) {
+                            const newGroup = {
+                                ...group,
+                                title: newTitle
+                            };
+                            handleEditGroup(group, newGroup);
+                        }
+                        editIdx = -1;
                     }}
                 />
             {/if}
@@ -80,6 +103,8 @@
             <EditGroup value={''} isFocused={true} change={handleAddGroup} />
         {/if}
     </div>
+    <!-- 点击空白处添加一个新分组 -->
+    <div class="group-blank" on:dblclick={handleShowAddGroup} />
     <div class="group-operate">
         <div class="group-add" on:click={handleShowAddGroup}>
             <img class="group-icon" src={addIcon} />
@@ -108,6 +133,10 @@
                 .group-icon {
                     height: 14px;
                 }
+                .group-todo-count {
+                    margin-left: auto;
+                    margin-right: 10px;
+                }
                 .group-title {
                     margin-left: 6px;
                 }
@@ -115,6 +144,9 @@
                     background-color: #dfe4f1;
                 }
             }
+        }
+        .group-blank {
+            flex: 1;
         }
         .group-operate {
             padding-top: 10px;

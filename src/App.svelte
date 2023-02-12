@@ -1,13 +1,16 @@
 <script>
     import Group from './components/group/groups.svelte';
     import groupListStore from './stores/groupListStores';
+    import todoListStore from './stores/todoListStores';
     import TodoList from './components/todoList/todoList.svelte';
 
-    const {subscribe, set} = groupListStore;
+    // groupList的store
+    const {subscribe: subscribeGroupList, set: setGroupList} = groupListStore;
+    const {subscribe: subscribeTodoList, set: setTodoList} = todoListStore;
     let activeGroup = 0;
     let groupList = [];
 
-    subscribe(value => {
+    subscribeGroupList(value => {
         groupList = value;
     });
 
@@ -16,7 +19,7 @@
     };
 
     const addGroup = function (newGroup) {
-        set([...groupList, newGroup]);
+        setGroupList([...groupList, newGroup]);
     };
 
     const editGroup = function (oldGroup, newGroup) {
@@ -26,7 +29,7 @@
             }
             return item;
         });
-        set(newGroupList);
+        setGroupList(newGroupList);
     };
 </script>
 
