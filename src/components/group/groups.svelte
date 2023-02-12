@@ -2,7 +2,6 @@
     import {v4 as uuidV4} from 'uuid';
     import addIcon from '../../assets/add.svg';
     import todoIcon from '../../assets/todo.svg';
-    import {createEventDispatcher, tick} from 'svelte';
     import EditGroup from './editGroup.svelte';
 
     // 组件内部的状态
@@ -12,11 +11,13 @@
     // 接受父组件传递的值
     export let groupList = [];
     export let activeGroup = 0;
-    const dispatch = createEventDispatcher();
+    export let addGroup = function (newGroup) {};
+    export let editGroup = function (oldGroup, newGroup) {};
+    export let changeActiveGroup = function (activeIdx) {};
 
     // 点击分组 => 通知父组件更改 activeGroup
     const handleClickGroup = function (idx) {
-        dispatch('changeActiveGroup', idx);
+        changeActiveGroup(idx);
     };
 
     // 双击分组 => 打开编辑分组
@@ -26,7 +27,7 @@
 
     // 编辑分组
     const handleEditGroup = function (oldGroup, newGroup) {
-        dispatch('editGroup', {oldGroup, newGroup});
+        editGroup(oldGroup, newGroup);
         editIdx = -1;
     };
 
@@ -36,10 +37,9 @@
     };
 
     // 添加分组 => 通知触发addGroup事件父组件添加一个分组
-    const handleAddGroup = function (e) {
+    const handleAddGroup = function (groupTitle) {
         const id = uuidV4();
-        const {detail: title} = e;
-        dispatch('addGroup', {id, title});
+        addGroup({id, title: groupTitle});
         isAddGroup = false;
     };
 </script>
@@ -66,8 +66,7 @@
                 <EditGroup
                     value={group.title}
                     isFocused={true}
-                    on:change={event => {
-                        const {detail: newTitle} = event;
+                    change={newTitle => {
                         const newGroup = {
                             ...group,
                             title: newTitle
@@ -78,7 +77,7 @@
             {/if}
         {/each}
         {#if isAddGroup}
-            <EditGroup value={''} isFocused={true} on:change={handleAddGroup} />
+            <EditGroup value={''} isFocused={true} change={handleAddGroup} />
         {/if}
     </div>
     <div class="group-operate">

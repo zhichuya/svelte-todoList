@@ -3,18 +3,18 @@
      * 分组编辑组件
      * props isFocused 初始化时是否获取焦点 默认为false
      * props value     初始值，默认为''
-     * event change    内容改变事件, 当输入框失去焦点或者按下回车时触发
-    */
-    import {onMount, createEventDispatcher} from "svelte"
+     * props change    内容改变事件回调函数, 当输入框失去焦点或者按下回车时调用
+     */
+    import {onMount} from 'svelte';
     export let isFocused = false;
     export let value = '';
+    export let change = function (value) {};
 
     let inputElement;
-    const dispatch = createEventDispatcher();
 
     onMount(() => {
         isFocused && inputElement.focus();
-    })
+    });
 
     // 回车主动触发失去焦点事件
     const handleKeyup = function (e) {
@@ -26,8 +26,8 @@
 
     // 失去焦点 => 通知触发addGroup事件父组件添加一个分组
     const handleBlue = function (e) {
-        dispatch('change', value);
         inputElement.blur();
+        change(value);
         value = '';
     };
 </script>
@@ -37,7 +37,7 @@
         class="group-input"
         type="input"
         placeholder="添加一个分组"
-        bind:value={value}
+        bind:value
         bind:this={inputElement}
         on:keyup={handleKeyup}
         on:blur={handleBlue}

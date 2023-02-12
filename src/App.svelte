@@ -11,21 +11,17 @@
         groupList = value;
     });
 
-    const changeActiveGroup = function (event) {
-        const {detail} = event;
-        activeGroup = detail;
+    const changeActiveGroup = function (activeIdx) {
+        activeGroup = activeIdx;
     };
 
-    const addGroup = function (event) {
-        const {detail: newGroup} = event;
+    const addGroup = function (newGroup) {
         set([...groupList, newGroup]);
     };
 
-    const editGroup = function (event) {
-        const {detail} = event;
-        const {oldGroup, newGroup} = detail;
+    const editGroup = function (oldGroup, newGroup) {
         const newGroupList = groupList.map(item => {
-            if ((item.id === oldGroup.id)) {
+            if (item.id === oldGroup.id) {
                 return newGroup;
             }
             return item;
@@ -36,13 +32,7 @@
 
 <div class="app-container">
     <div class="left-side">
-        <Group
-            {groupList}
-            {activeGroup}
-            on:addGroup={addGroup}
-            on:editGroup={editGroup}
-            on:changeActiveGroup={changeActiveGroup}
-        />
+        <Group {groupList} {activeGroup} {addGroup} {editGroup} {changeActiveGroup} />
     </div>
     <div class="right-side">
         <TodoList />
