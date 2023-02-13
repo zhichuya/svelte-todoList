@@ -9,9 +9,14 @@
     const {subscribe: subscribeTodoList, set: setTodoList} = todoListStore;
     let activeGroup = 0;
     let groupList = [];
+    let todoList = [];
 
     subscribeGroupList(value => {
         groupList = value;
+    });
+
+    subscribeTodoList(value => {
+        todoList = value;
     });
 
     const changeActiveGroup = function (activeIdx) {
@@ -31,14 +36,24 @@
         });
         setGroupList(newGroupList);
     };
+
+    const editedTodo = function (oldTodo, newTodo) {
+        const newTodoList = todoList.map(item => {
+            if (item.id === oldTodo.id) {
+                return newTodo;
+            }
+            return item;
+        });
+        setTodoList(newTodoList);
+    };
 </script>
 
 <div class="app-container">
     <div class="left-side">
-        <Group {groupList} {activeGroup} {addGroup} {editGroup} {changeActiveGroup} />
+        <Group {groupList} {activeGroup} {addGroup} {editGroup} {changeActiveGroup} {todoList} />
     </div>
     <div class="right-side">
-        <TodoList />
+        <TodoList {groupList} {todoList} {activeGroup} {editedTodo} />
     </div>
 </div>
 

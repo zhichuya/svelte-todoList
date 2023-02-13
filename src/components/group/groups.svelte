@@ -1,23 +1,15 @@
 <script>
-    
     import {v4 as uuidV4} from 'uuid';
     import addIcon from '../../assets/add.svg';
     import todoIcon from '../../assets/todo.svg';
     import EditGroup from './editGroup.svelte';
-    import todoListStore from '../../stores/todoListStores';
 
-    const {subscribe: subscribeTodoList} = todoListStore;
 
     // 组件内部的状态
     let isAddGroup = false;
     let editIdx = -1;
-    let todoList = [];
-
-    subscribeTodoList((value) => {
-        todoList = value;
-    })
-
     // 接受父组件传递的值
+    export let todoList = [];
     export let groupList = [];
     export let activeGroup = 0;
     export let addGroup = function (newGroup) {};
@@ -56,11 +48,11 @@
     // 获取groupId分组下的todo数量
     const getTodoCountInGroup = function (groupId) {
         let count = 0;
-        todoList.forEach((todo) => {
+        todoList.forEach(todo => {
             todo.groupId === groupId && count++;
         });
         return count;
-    }
+    };
 </script>
 
 <!-- svelte-ignore a11y-missing-attribute -->
