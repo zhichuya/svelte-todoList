@@ -1,9 +1,16 @@
 <script>
     import {TODO_STATUS_PENDING, TODO_STATUS_FINISH} from '../../constant/index';
+
     export let todoList = [];
     export let groupList = [];
     export let activeGroup = 0;
     export let editedTodo = function (oldTodo, newTodo) {};
+
+    // 当前点击的todoIdx
+    let clickTodoId = -1;
+
+    $: groupTitle = groupList[activeGroup].title;
+    $: groupId = groupList[activeGroup].id;
 
     const computeClassName = todo => {
         let className = '';
@@ -20,6 +27,10 @@
         return todo.status == TODO_STATUS_FINISH;
     };
 
+    const handleClickTodo = todo => {
+        clickTodoId = todo.id;
+    };
+
     const handleChangeTodo = (e, oldTodo) => {
         const target = e.target;
         const checked = target.checked;
@@ -32,14 +43,20 @@
     };
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="todo-list-container">
     <div class="header">
-        <div class="title">{groupList[activeGroup].title || '默认'}</div>
+        <div class="title">{groupTitle || '默认'}</div>
     </div>
     <div class="todo-list">
         {#each todoList as todo, idx (todo.id)}
-            {#if groupList[activeGroup].id === todo.groupId}
-                <div class="todo-item">
+            {#if todo.groupId === groupId}
+                <div
+                    class={todo.id !== clickTodoId ? "todo-item" : "todo-item click-todo"}
+                    on:click={() => {
+                        handleClickTodo(todo);
+                    }}
+                >
                     <input
                         type="checkbox"
                         checked={isFinished(todo)}
@@ -72,7 +89,11 @@
                 margin-top: 10px;
                 border-radius: 5px;
                 align-items: center;
+                box-sizing: border-box;
                 background-color: #fff;
+                &.click-todo{
+                    border: 1px solid #6f84c5;
+                }
                 .checkbox {
                     margin-left: 10px;
                     border: 1 solid #d9d9d9;
