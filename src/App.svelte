@@ -1,5 +1,5 @@
 <script>
-    import Group from './components/group/groups.svelte';
+    import Group from './components/group/groupList.svelte';
     import groupListStore from './stores/groupListStores';
     import todoListStore from './stores/todoListStores';
     import TodoList from './components/todoList/todoList.svelte';
@@ -46,6 +46,10 @@
         });
         setTodoList(newTodoList);
     };
+
+    const addTodo = function (todo) {
+        setTodoList([todo,...todoList])
+    }
 </script>
 
 <div class="app-container">
@@ -53,7 +57,7 @@
         <Group {groupList} {activeGroup} {addGroup} {editGroup} {changeActiveGroup} {todoList} />
     </div>
     <div class="right-side">
-        <TodoList {groupList} {todoList} {activeGroup} {editedTodo} />
+        <TodoList {groupList} {todoList} {activeGroup} {editedTodo}  {addTodo}/>
     </div>
 </div>
 
