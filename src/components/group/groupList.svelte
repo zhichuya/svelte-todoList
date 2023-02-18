@@ -3,16 +3,21 @@
     import addIcon from '../../assets/add.svg';
     import todoIcon from '../../assets/todo.svg';
     import EditGroup from './editGroup.svelte';
-
+    import CustomMenu from '../customMenu/customMenu.svelte';
 
     // 组件内部的状态
-    let isAddGroup = false;
     let editIdx = -1;
+    let isAddGroup = false;
+    let contextmenuIdx = -1;
+    let showContextMenu = false;
+
     // 接受父组件传递的值
     export let todoList = [];
     export let groupList = [];
     export let activeGroup = 0;
+
     export let addGroup = function (newGroup) {};
+    export let deleteGroup = function (group) {};
     export let editGroup = function (oldGroup, newGroup) {};
     export let changeActiveGroup = function (activeIdx) {};
 
@@ -45,8 +50,8 @@
         isAddGroup = false;
     };
 
-    // 获取groupId分组下的todo数量
-    const getTodoCountInGroup = function (groupId) {
+    // 获取groupId分组下的todo数量，todoList 更新时动态计算出对应分组下的todo数量
+    $: getTodoCountInGroup = function (groupId) {
         let count = 0;
         todoList.forEach(todo => {
             todo.groupId === groupId && count++;
@@ -58,6 +63,7 @@
 <!-- svelte-ignore a11y-missing-attribute -->
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="group-container">
+    <!-- 分组列表 -->
     <div class="group-list">
         {#each groupList as group, idx (idx)}
             {#if idx !== editIdx}
@@ -68,6 +74,10 @@
                     }}
                     on:dblclick={e => {
                         handleShowEditGroup(idx);
+                    }}
+                    on:contextmenu={e => {
+                        showContextMenu = true;
+                        contextmenuIdx = idx;
                     }}
                 >
                     <img class="group-icon" src={todoIcon} />
@@ -97,12 +107,36 @@
     </div>
     <!-- 点击空白处添加一个新分组 -->
     <div class="group-blank" on:dblclick={handleShowAddGroup} />
+    <!-- 分组操作 -->
     <div class="group-operate">
         <div class="group-add" on:click={handleShowAddGroup}>
             <img class="group-icon" src={addIcon} />
             <div class="group-title">添加分组</div>
         </div>
     </div>
+    <!-- 自定义菜单：展示菜单 && (右击Idx === 当前激活的activeGroup)  ==> 在激活处右击菜单方可展示-->
+    {#if showContextMenu && contextmenuIdx == activeGroup}
+        <CustomMenu>
+            <div slot="menu-list" class="menu-list">
+                <div
+                    class="menu-item"
+                    on:click={e => {
+                        handleShowEditGroup(contextmenuIdx);
+                    }}
+                >
+                    编辑
+                </div>
+                <div
+                    class="menu-item"
+                    on:click={e => {
+                        deleteGroup(groupList[contextmenuIdx]);
+                    }}
+                >
+                    删除
+                </div>
+            </div>
+        </CustomMenu>
+    {/if}
 </div>
 
 <style lang="less">
@@ -159,6 +193,20 @@
                 }
                 &:hover {
                     color: #7084c5;
+                }
+            }
+        }
+
+        // 自定义菜单
+        .menu-list {
+            width: 80px;
+            font-size: 12px;
+            color: #595959;
+            .menu-item {
+                line-height: 1;
+                padding-bottom: 8px;
+                &:last-child {
+                    padding-bottom: 0;
                 }
             }
         }

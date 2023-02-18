@@ -2,12 +2,11 @@
  * @Author: chengyuan06 chengyuan06@baidu.com
  * @Date: 2023-02-11
  * @LastEditors: chengyuan06 chengyuan06@baidu.com
- * @LastEditTime: 2023-02-12
+ * @LastEditTime: 2023-02-18
  * @FilePath: /svelte/src/stores/groupListStores.js
  * @Description: 统一管理程序中的groupList状态
  */
 import {writable} from 'svelte/store';
-import {v4 as uuidV4} from 'uuid';
 
 const groupList = [
     {
@@ -24,8 +23,14 @@ const groupList = [
     }
 ];
 
+const defaultGroup = {
+    id: '493ccd08-3476-46bd-ba7c-c9d174576185',
+    title: '默认',
+    isDefault: true
+};
+
 function createGroupListStore() {
-    const {subscribe, set, update} = writable(groupList);
+    const {subscribe, set, update} = writable([...groupList, defaultGroup]);
 
     return {
         set,

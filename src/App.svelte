@@ -37,6 +37,19 @@
         setGroupList(newGroupList);
     };
 
+    const deleteGroup = function (group) {
+        if (group.isDefault) {
+            return false;
+        }
+
+        const newGroupList = groupList.filter(item => group.id !== item.id);
+        setGroupList(newGroupList);
+        // 删除,更新激活group
+        activeGroup = 0;
+
+        return true;
+    };
+
     const editedTodo = function (oldTodo, newTodo) {
         const newTodoList = todoList.map(item => {
             if (item.id === oldTodo.id) {
@@ -48,16 +61,26 @@
     };
 
     const addTodo = function (todo) {
-        setTodoList([todo,...todoList])
-    }
+        setTodoList([todo, ...todoList]);
+    };
+
+    const deleteTodo = function (todo) {
+        const newTodoList = todoList.filter(item => todo.id !== item.id);
+        setTodoList(newTodoList);
+    };
 </script>
 
-<div class="app-container">
+<div
+    class="app-container"
+    on:contextmenu={e => {
+        e.preventDefault();
+    }}
+>
     <div class="left-side">
-        <Group {groupList} {activeGroup} {addGroup} {editGroup} {changeActiveGroup} {todoList} />
+        <Group {groupList} {activeGroup} {addGroup} {editGroup} {changeActiveGroup} {todoList} {deleteGroup} />
     </div>
     <div class="right-side">
-        <TodoList {groupList} {todoList} {activeGroup} {editedTodo}  {addTodo}/>
+        <TodoList {groupList} {todoList} {activeGroup} {editedTodo} {addTodo} {deleteTodo} />
     </div>
 </div>
 

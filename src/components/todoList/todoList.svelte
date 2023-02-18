@@ -1,5 +1,6 @@
 <script>
     import {TODO_STATUS_PENDING, TODO_STATUS_FINISH} from '../../constant/index';
+    import CustomMenu from '../customMenu/customMenu.svelte';
     import todoListStore from '../../stores/todoListStores';
     import EditTodoList from './editTodo.svelte';
     import AddIcon from '../../assets/add.svg';
@@ -8,13 +9,16 @@
     export let groupList = [];
     export let activeGroup = 0;
     export let addTodo = function (todo) {};
+    export let deleteTodo = function (todo) {};
     export let editedTodo = function (oldTodo, newTodo) {};
 
     // 当前点击的todoIdx
     let clickTodoId = -1;
     let editingTodoId = -1;
-    let {createTodo} = todoListStore;
+    let contextmenuId = -1;
     let isAddingTodo = false;
+    let showContextMenu = false;
+    let {createTodo} = todoListStore;
 
     // 计算属性：计算出所属的组
     $: groupTitle = groupList[activeGroup].title;
@@ -74,6 +78,7 @@
 <!-- svelte-ignore a11y-missing-attribute -->
 
 <div class="todo-list-container">
+    <!-- todoList 头部区域 -->
     <div class="header">
         <div class="title">{groupTitle || '默认'}</div>
         <div class="operation-container">
@@ -86,6 +91,7 @@
             />
         </div>
     </div>
+    <!-- todoList 渲染区域 -->
     <div class="todo-list">
         {#each todoList as todo, idx (todo.id)}
             {#if todo.groupId === groupId}
@@ -96,6 +102,10 @@
                     }}
                     on:dblclick={() => {
                         editingTodoId = todo.id;
+                    }}
+                    on:contextmenu={e => {
+                        showContextMenu = true;
+                        contextmenuId = todo.id;
                     }}
                 >
                     <input
@@ -144,6 +154,30 @@
             </div>
         {/if}
     </div>
+    <!-- 自定义菜单：展示菜单 && (右击Idx === 当前激活的activeGroup)  ==> 在激活处右击菜单方可展示-->
+    {#if showContextMenu && contextmenuId == clickTodoId}
+        <CustomMenu>
+            <div slot="menu-list" class="menu-list">
+                <div
+                    class="menu-item"
+                    on:click={e => {
+                        editingTodoId = clickTodoId;
+                    }}
+                >
+                    编辑
+                </div>
+                <div
+                    class="menu-item"
+                    on:click={e => {
+                        const delTodo = todoList.find(item => item.id == clickTodoId);
+                        deleteTodo(delTodo)
+                    }}
+                >
+                    删除
+                </div>
+            </div>
+        </CustomMenu>
+    {/if}
 </div>
 
 <style lang="less">
@@ -192,6 +226,19 @@
                         color: #aaaaaa;
                         text-decoration: line-through;
                     }
+                }
+            }
+        }
+        // 自定义菜单
+        .menu-list {
+            width: 80px;
+            font-size: 12px;
+            color: #595959;
+            .menu-item {
+                line-height: 1;
+                padding-bottom: 8px;
+                &:last-child {
+                    padding-bottom: 0;
                 }
             }
         }
