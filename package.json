@@ -14,6 +14,7 @@
     "vite": "^4.1.0"
   },
   "dependencies": {
+    "@tsconfig/svelte": "^3.0.0",
     "less": "^4.1.3",
     "uuid": "^9.0.0"
   }
